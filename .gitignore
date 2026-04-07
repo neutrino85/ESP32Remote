@@ -1,0 +1,32 @@
+# ── Arduino IDE ───────────────────────────────────────────────────────────────
+build/
+*.bin
+*.elf
+*.hex
+*.map
+
+# Arduino IDE 2.x cache
+.arduino15/
+libraries/
+
+# ── ESP-IDF / PlatformIO (si migration future) ────────────────────────────────
+.pio/
+.vscode/
+sdkconfig
+sdkconfig.old
+
+# ── Secrets & config locale ───────────────────────────────────────────────────
+secrets.h
+config_local.h
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Éditeurs ──────────────────────────────────────────────────────────────────
+*.swp
+*.swo
+*~
+.idea/
+*.sublime-workspace
