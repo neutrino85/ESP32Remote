@@ -1,4 +1,4 @@
-# ESP32 Remote — v1.3.0
+# ESP32 Remote — v1.4.0
 
 ESP32 Remote est un firmware pour ESP32-S2/S3 qui expose une interface Web locale, des commandes MQTT et des fonctions HID USB afin de piloter une télévision depuis le réseau, à partir d'une page locale, via Domoticz ou via Home Assistant.
 L'API de ma TV Philips plantant régulièrement, ce firmware émule un clavier HID physique branché en USB.
@@ -15,16 +15,16 @@ L'API de ma TV Philips plantant régulièrement, ce firmware émule un clavier H
     <td align="center"><strong>Gestion des macros</strong></td>
   </tr>
   <tr>
-    <td><img src="docs/ESP32Remote.png" alt="Interface principale ESP32 Remote" width="280"/></td>
-    <td><img src="docs/macros.png" alt="Page macros" width="280"/></td>
+    <td><img src="docs/ESP32Remote.jpg" alt="Interface principale ESP32 Remote" width="280"/></td>
+    <td><img src="docs/macros.jpg" alt="Page macros" width="280"/></td>
   </tr>
   <tr>
     <td align="center"><strong>Configuration</strong></td>
     <td align="center"><strong>Mise à jour OTA</strong></td>
   </tr>
   <tr>
-    <td><img src="docs/config.png" alt="Page de configuration" width="280"/></td>
-    <td><img src="docs/OTA.png" alt="Page OTA" width="280"/></td>
+    <td><img src="docs/config.jpg" alt="Page de configuration" width="280"/></td>
+    <td><img src="docs/OTA.jpg" alt="Page OTA" width="280"/></td>
   </tr>
 </table>
 
@@ -37,10 +37,22 @@ L'API de ma TV Philips plantant régulièrement, ce firmware émule un clavier H
 - Pilotage par HTTP et MQTT.
 - Moteur de macros : séquences de commandes avec délais, stockées en NVS.
 - Envoi d'un code HID personnalisé (`key:<code>`).
+- **Saisie de texte libre** (`text:`) avec émulation de frappe humaine caractère par caractère.
+- **Délais HID configurables** depuis l'interface web pour s'adapter à la réactivité de n'importe quelle TV ou box (Fire TV, etc.).
+- Architecture **Single-Thread non-bloquante** (files d'attente) optimisée pour la stabilité des puces monocœur (ESP32-S2) même sous de lourdes requêtes HTML ou MQTT.
 - Mise à jour OTA par interface Web (glisser-déposer d'un `.bin`) avec suivi de progression et redémarrage automatique.
 - Support d'`ArduinoOTA` (mise à jour réseau depuis l'IDE).
 - Découverte automatique Home Assistant (MQTT auto-discovery) et publication de télémétrie.
 - Mode point d'accès de secours si la connexion Wi-Fi échoue.
+
+---
+
+## 💡 Astuces & Compatibilité Fire TV / Android TV
+
+Si vous contrôlez une box (comme une **Fire TV**) à travers le câble HDMI de votre téléviseur (protocole HDMI-CEC), la saisie de lettres de clavier risque d'être filtrée par la TV. 
+- Les commandes de navigation (flèches), médias (Volume, Play/Pause) et les **chiffres (0-9)** passeront sans aucun problème via le HDMI-CEC.
+- La touche "**Retour Arrière**" (Backspace) du pavé numérique web envoie intentionnellement la commande média système `CONSUMER_CONTROL_BACK` pour garantir le fonctionnement du bouton retour natif sur les box TV.
+- Pour une saisie de texte alphabétique 100% fonctionnelle, le câble USB (OTG) de l'ESP32 doit idéalement être branché *directement* sur le port USB de la box TV, et non sur le port de la télévision.
 
 ---
 
@@ -58,7 +70,7 @@ La page `/config` permet de régler :
 
 - **Wi-Fi** : SSID, mot de passe, IP fixe ou DHCP (adresse, passerelle, masque, DNS).
 - **MQTT** : broker, port, identifiants, Client ID, topics de commande et de statut.
-- **Appareil** : hostname (utilisé aussi pour mDNS et ArduinoOTA).
+- **Appareil** : hostname (utilisé aussi pour mDNS et ArduinoOTA), langue de l'interface, et **réglage fin des délais HID** (temps d'appui et pause entre les touches).
 
 La configuration est enregistrée en NVS, puis l'ESP32 redémarre automatiquement après sauvegarde.
 Une réinitialisation complète est disponible via `POST /config/reset`.
@@ -119,8 +131,9 @@ Le moteur de dispatch accepte les commandes suivantes, déclenchables par HTTP o
 ### Pavé numérique
 `digit0` à `digit9` — envoie le chiffre correspondant.
 
-### Codes HID bruts
+### Codes bruts & Saisie
 - `key:<code>` — envoie le code Consumer Control (décimal ou `0x…`).
+- `text:<chaine>` — tape la chaîne de caractères (émulation de frappe au clavier).
 
 ### Macros
 - `macro:<nom>` — exécute la macro portant ce nom.
@@ -149,7 +162,7 @@ Le firmware souscrit au topic de commande configuré et publie les retours d'ét
 Il publie également :
 
 - Un état LWT `online` / `offline` (retained).
-- Une télémétrie périodique : RSSI Wi-Fi, uptime, adresse IP, version du firmware (`1.3.0`), nombre de démarrages.
+- Une télémétrie périodique : RSSI Wi-Fi, uptime, adresse IP, version du firmware (`1.4.0`), nombre de démarrages.
 
 Des entités Home Assistant sont générées automatiquement (MQTT auto-discovery) pour les boutons de commande, les capteurs de télémétrie et les macros enregistrées.
 
@@ -182,47 +195,6 @@ La mise à jour par `ArduinoOTA` (protocole réseau) est aussi supportée en par
 | `POST` | `/update` | Upload du firmware |
 | `GET` | `/mqttstatus` | État de la connexion MQTT (JSON) |
 | `POST` | `/sendkey` | Envoi d'un code HID personnalisé |
+| `POST` | `/sendtext` | Envoi d'une chaîne de caractères libre |
 | `GET` | `/vol` | Réglage volume précis (`?val=0`–`20`) |
 | `GET/POST` | `/*` (AP mode) | Portail captif de configuration |
-
----
-
-## Bibliothèques utilisées
-
-| Bibliothèque | Source |
-|---|---|
-| `WiFi.h`, `WebServer.h`, `DNSServer.h`, `ESPmDNS.h` | ESP32 Arduino core |
-| `Preferences.h` | ESP32 Arduino core (NVS) |
-| `USB.h`, `USBHIDKeyboard.h`, `USBHIDConsumerControl.h`, `USBHIDSystemControl.h` | ESP32 Arduino core (USB OTG — S2/S3 uniquement) |
-| `ArduinoOTA.h`, `Update.h` | ESP32 Arduino core |
-| `PubSubClient` | À installer via le gestionnaire de bibliothèques |
-
----
-
-## Installation rapide
-
-1. **Installer le support ESP32** dans l'IDE Arduino (board package `esp32` by Espressif ≥ 2.x) et sélectionner la carte ESP32-S2 ou ESP32-S3 appropriée.
-2. **Installer `PubSubClient`** via le gestionnaire de bibliothèques (toutes les autres dépendances font partie du board package).
-3. **Adapter les valeurs par défaut** dans le sketch (SSID, mot de passe, broker MQTT) avant compilation — voir section ci-dessous.
-4. **Flasher** une première fois le firmware par USB.
-5. **Configurer** via l'interface Web (`/config`) : Wi-Fi, MQTT, hostname, puis redémarrer.
-6. Pour les mises à jour suivantes : page `/update` ou `ArduinoOTA`.
-
----
-
-## Valeurs par défaut
-
-Le sketch contient des valeurs réseau et MQTT codées en dur, utilisées lors du premier démarrage avant toute configuration :
-
-| Paramètre | Valeur par défaut |
-|---|---|
-| SSID Wi-Fi | `Team27wrt` |
-| Broker MQTT | `192.168.15.251` |
-| MQTT Client ID | `esp32-remote` |
-| Topic commandes | `esp32-remote/cmd` |
-| Topic statut | `esp32-remote/status` |
-| Hostname | `ESP32-Remote` |
-| SSID AP de secours | `ESP32-Remote-Setup` |
-| Mot de passe AP | `esp32setup` |
-
-> ⚠️ Il est recommandé de modifier ces valeurs (ou de ne configurer que via l'interface Web) avant tout déploiement hors réseau privé.
