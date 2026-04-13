@@ -15,16 +15,16 @@ L'API de ma TV Philips plantant régulièrement, ce firmware émule un clavier H
     <td align="center"><strong>Gestion des macros</strong></td>
   </tr>
   <tr>
-    <td><img src="docs/ESP32Remote.jpg" alt="Interface principale ESP32 Remote" width="280"/></td>
-    <td><img src="docs/macros.jpg" alt="Page macros" width="280"/></td>
+    <td><img src="docs/ESP32Remote.png" alt="Interface principale ESP32 Remote" width="280"/></td>
+    <td><img src="docs/macros.png" alt="Page macros" width="280"/></td>
   </tr>
   <tr>
     <td align="center"><strong>Configuration</strong></td>
     <td align="center"><strong>Mise à jour OTA</strong></td>
   </tr>
   <tr>
-    <td><img src="docs/config.jpg" alt="Page de configuration" width="280"/></td>
-    <td><img src="docs/OTA.jpg" alt="Page OTA" width="280"/></td>
+    <td><img src="docs/config.png" alt="Page de configuration" width="280"/></td>
+    <td><img src="docs/OTA.png" alt="Page OTA" width="280"/></td>
   </tr>
 </table>
 
