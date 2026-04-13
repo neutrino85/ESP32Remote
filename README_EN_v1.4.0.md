@@ -15,16 +15,16 @@ Since my Philips TV's API crashes regularly, this firmware emulates a physical H
     <td align="center"><strong>Macros Management</strong></td>
   </tr>
   <tr>
-    <td><img src="docs/ESP32Remote.jpg" alt="ESP32 Remote Main Interface" width="280"/></td>
-    <td><img src="docs/macros.jpg" alt="Macros Page" width="280"/></td>
+    <td><img src="docs/ESP32Remote.png" alt="ESP32 Remote Main Interface" width="280"/></td>
+    <td><img src="docs/macros.png" alt="Macros Page" width="280"/></td>
   </tr>
   <tr>
     <td align="center"><strong>Configuration</strong></td>
     <td align="center"><strong>OTA Update</strong></td>
   </tr>
   <tr>
-    <td><img src="docs/config.jpg" alt="Configuration Page" width="280"/></td>
-    <td><img src="docs/OTA.jpg" alt="OTA Page" width="280"/></td>
+    <td><img src="docs/config.png" alt="Configuration Page" width="280"/></td>
+    <td><img src="docs/OTA.png" alt="OTA Page" width="280"/></td>
   </tr>
 </table>
 
